@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --cream: #FDFBF7;
+  --sage: #A3C9A8;
+  --dusty-pink: #EDC4B3;
+  --charcoal: #4A4A4A;
+  --sage-light: #C5E0C9;
+  --sage-dark: #82A885;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--cream);
+  color: var(--charcoal);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Quicksand', sans-serif;
+}

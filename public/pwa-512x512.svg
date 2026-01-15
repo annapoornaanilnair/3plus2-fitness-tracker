@@ -1,0 +1,5 @@
+<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" fill="#A3C9A8" rx="100"/>
+  <circle cx="256" cy="180" r="80" fill="white"/>
+  <text x="256" y="380" font-family="Arial, sans-serif" font-size="160" font-weight="bold" fill="white" text-anchor="middle">3+2</text>
+</svg>

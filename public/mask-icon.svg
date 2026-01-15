@@ -1,0 +1,5 @@
+<svg width="192" height="192" xmlns="http://www.w3.org/2000/svg">
+  <path d="M96 0C42.98 0 0 42.98 0 96s42.98 96 96 96 96-42.98 96-96S149.02 0 96 0z" fill="#A3C9A8"/>
+  <circle cx="96" cy="70" r="25" fill="white"/>
+  <text x="96" y="130" font-family="Arial, sans-serif" font-size="50" font-weight="bold" fill="white" text-anchor="middle">3+2</text>
+</svg>
