@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { EnergyMode } from '../types';
 
 interface EnergyToggleProps {
@@ -10,28 +10,100 @@ interface EnergyToggleProps {
 export const EnergyToggle: React.FC<EnergyToggleProps> = ({ mode, onToggle }) => {
   return (
     <div className="flex items-center gap-3">
-      <span className="text-sm text-[#6A6A6A]" style={{ fontFamily: 'Nunito, sans-serif' }}>
-        {mode === 'high' ? 'High Energy' : 'Low Energy'}
-      </span>
+      <AnimatePresence mode="wait">
+        <motion.span
+          key={mode}
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 10 }}
+          transition={{ duration: 0.2 }}
+          className="text-sm text-[#6A6A6A] font-medium"
+          style={{ fontFamily: 'Nunito, sans-serif' }}
+        >
+          {mode === 'high' ? 'High Energy' : 'Low Energy'}
+        </motion.span>
+      </AnimatePresence>
+
       <motion.button
-        whileTap={{ scale: 0.95 }}
+        whileTap={{ scale: 0.92 }}
+        whileHover={{ scale: 1.05 }}
         onClick={onToggle}
-        className={`relative w-16 h-8 rounded-full transition-colors ${
-          mode === 'high' ? 'bg-[#A3C9A8]' : 'bg-[#EDC4B3]'
-        }`}
+        className={`relative w-20 h-10 rounded-full transition-all duration-300 shadow-md ${mode === 'high'
+            ? 'bg-gradient-to-r from-[#A3C9A8] to-[#8BB58F]'
+            : 'bg-gradient-to-r from-[#EDC4B3] to-[#D4A59A]'
+          }`}
+        style={{
+          boxShadow: mode === 'high'
+            ? '0 4px 12px rgba(163, 201, 168, 0.4)'
+            : '0 4px 12px rgba(237, 196, 179, 0.4)'
+        }}
       >
+        {/* Animated background glow */}
+        <motion.div
+          className="absolute inset-0 rounded-full"
+          animate={{
+            opacity: [0.5, 0.8, 0.5],
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          style={{
+            background: mode === 'high'
+              ? 'radial-gradient(circle, rgba(163, 201, 168, 0.6) 0%, transparent 70%)'
+              : 'radial-gradient(circle, rgba(237, 196, 179, 0.6) 0%, transparent 70%)'
+          }}
+        />
+
+        {/* Toggle knob */}
         <motion.div
           layout
-          transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-          className="absolute top-1 left-1 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-md"
+          transition={{
+            type: 'spring',
+            stiffness: 700,
+            damping: 30,
+            mass: 0.8
+          }}
+          className="absolute top-1 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg"
           style={{
-            transform: mode === 'high' ? 'translateX(0)' : 'translateX(32px)'
+            left: mode === 'high' ? '4px' : 'calc(100% - 36px)',
           }}
         >
-          <span className="text-xs">
-            {mode === 'high' ? '🌸' : '🌙'}
-          </span>
+          <AnimatePresence mode="wait">
+            <motion.span
+              key={mode}
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              exit={{ scale: 0, rotate: 180 }}
+              transition={{
+                duration: 0.3,
+                type: 'spring',
+                stiffness: 400,
+                damping: 20
+              }}
+              className="text-lg"
+            >
+              {mode === 'high' ? '🌸' : '🌙'}
+            </motion.span>
+          </AnimatePresence>
         </motion.div>
+
+        {/* Particle effects on toggle */}
+        <AnimatePresence>
+          {mode === 'high' && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: [0, 1, 0], scale: [0, 1.5, 2] }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.6 }}
+              className="absolute inset-0 rounded-full pointer-events-none"
+              style={{
+                background: 'radial-gradient(circle, rgba(163, 201, 168, 0.4) 0%, transparent 60%)'
+              }}
+            />
+          )}
+        </AnimatePresence>
       </motion.button>
     </div>
   );

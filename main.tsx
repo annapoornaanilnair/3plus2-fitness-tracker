@@ -6,7 +6,7 @@ import './styles/globals.css'
 // Register service worker for PWA
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').catch(() => {
-        // Service worker registration failed silently
+        console.log('Service worker registration failed')
     })
 }
 

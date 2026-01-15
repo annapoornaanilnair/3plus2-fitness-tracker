@@ -31,6 +31,8 @@ export const ShareableWorkoutCard: React.FC<ShareableWorkoutCardProps> = ({
             link.download = `workout-${dayName}-${new Date().toISOString().split('T')[0]}.png`;
             link.href = canvas.toDataURL('image/png');
             link.click();
+
+            console.log('✅ Workout card downloaded');
         } catch (error) {
             console.error('Error generating card:', error);
         }
@@ -56,6 +58,7 @@ export const ShareableWorkoutCard: React.FC<ShareableWorkoutCardProps> = ({
                         text: `Completed ${dayName}! ${streak} day streak 🔥`,
                         files: [file]
                     });
+                    console.log('✅ Workout card shared');
                 } else {
                     // Fallback: download instead
                     downloadCard();

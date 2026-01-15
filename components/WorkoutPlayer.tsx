@@ -194,7 +194,7 @@ export const WorkoutPlayer: React.FC<WorkoutPlayerProps> = ({
                   <iframe
                     width="100%"
                     height="100%"
-                    src={currentExercise.videoUrl}
+                    src={`${currentExercise.videoUrl}${currentExercise.videoUrl.includes('?') ? '&' : '?'}autoplay=1&mute=1`}
                     title={currentExercise.name}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
@@ -275,10 +275,10 @@ export const WorkoutPlayer: React.FC<WorkoutPlayerProps> = ({
                     whileTap={{ scale: 0.95 }}
                     onClick={() => toggleSet(index)}
                     className={`aspect-square rounded-3xl flex flex-col items-center justify-center text-lg transition-all ${set.completed && set.struggled
-                        ? 'bg-yellow-200 border-2 border-yellow-400'
-                        : set.completed
-                          ? 'bg-[#A3C9A8] text-white'
-                          : 'bg-[#F5F1EB] text-[#8A8A8A] border-2 border-dashed border-[#C5E0C9]'
+                      ? 'bg-yellow-200 border-2 border-yellow-400'
+                      : set.completed
+                        ? 'bg-[#A3C9A8] text-white'
+                        : 'bg-[#F5F1EB] text-[#8A8A8A] border-2 border-dashed border-[#C5E0C9]'
                       }`}
                   >
                     <div

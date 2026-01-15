@@ -45,6 +45,7 @@ function AppContent() {
         window.location.reload();
       }
     };
+    console.log('💡 Tip: Run clearWorkoutHistory() in console to reset all workout data');
   }, [clearAllWorkoutHistory]);
 
   const [currentScreen, setCurrentScreen] = useState<Screen>('dashboard');

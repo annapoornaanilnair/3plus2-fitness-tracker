@@ -22,14 +22,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [isAdmin, setIsAdmin] = useState(false)
 
     useEffect(() => {
+        console.log('🔍 AuthContext: Starting auth check...')
+
         // Safety timeout - if nothing happens in 10 seconds, force loading to false
         const safetyTimeout = setTimeout(() => {
+            console.warn('⚠️ Auth check timed out after 10s, forcing loading = false')
             setLoading(false)
         }, 10000)
 
         // Check active session
         supabase.auth.getSession()
             .then(({ data: { session } }) => {
+                console.log('✅ Session retrieved:', session ? 'User logged in' : 'No user')
                 clearTimeout(safetyTimeout)
                 setSession(session)
                 setUser(session?.user ?? null)
@@ -107,23 +111,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const signOut = async () => {
         try {
-            // Clear local storage first
-            localStorage.clear();
-            sessionStorage.clear();
+            console.log('🚪 Logging out...');
 
+            // Don't clear localStorage at all - just sign out from Supabase
+            // The app data stays in localStorage for next login
             const { error } = await supabase.auth.signOut();
+
             if (error) {
-                console.error('Logout error:', error);
+                console.error('❌ Logout error:', error);
+            } else {
+                console.log('✅ Logged out successfully - all app data preserved in localStorage');
             }
 
-            // Force hard navigation to root (clears all React state)
-            window.location.href = '/';
+            // The auth state change will trigger automatically via onAuthStateChange
+            // No need to force navigation - React will handle it
         } catch (error) {
-            console.error('Failed to sign out:', error);
-            // Still clear and navigate even if error
-            localStorage.clear();
-            sessionStorage.clear();
-            window.location.href = '/';
+            console.error('❌ Failed to sign out:', error);
         }
     }
 

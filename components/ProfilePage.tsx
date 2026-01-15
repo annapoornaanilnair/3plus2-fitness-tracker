@@ -78,17 +78,34 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
     onUpdateProfile({ notificationTime });
 
     // Request notification permission if not already granted
-    if ('Notification' in window && Notification.permission === 'default') {
-      const permission = await Notification.requestPermission();
-      if (permission === 'granted') {
+    if ('Notification' in window) {
+      if (Notification.permission === 'default') {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+          console.log('✅ Notification permission granted');
+          alert('✅ Notifications enabled! You\'ll get daily reminders at ' + notificationTime);
+          scheduleNotification();
+        } else {
+          alert('⚠️ Notification permission denied. Please enable in your browser settings.');
+        }
+      } else if (Notification.permission === 'granted') {
+        alert('✅ Reminder time updated to ' + notificationTime);
         scheduleNotification();
+      } else {
+        alert('⚠️ Notifications blocked. Please enable in browser settings.');
       }
-    } else if (Notification.permission === 'granted') {
-      scheduleNotification();
+    } else {
+      alert('⚠️ This browser doesn\'t support notifications');
     }
   };
 
   const scheduleNotification = () => {
+    // Clear existing notification timer
+    const existingTimer = localStorage.getItem('notification_timer_id');
+    if (existingTimer) {
+      clearTimeout(parseInt(existingTimer));
+    }
+
     // Schedule daily notification
     const [hours, minutes] = notificationTime.split(':');
     const now = new Date();
@@ -102,17 +119,22 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
 
     const timeUntilNotification = scheduledTime.getTime() - now.getTime();
 
-    setTimeout(() => {
+    const timerId = setTimeout(() => {
       if (Notification.permission === 'granted') {
         new Notification('Time to Workout! 💪', {
           body: 'Your daily fitness routine is waiting for you!',
-          icon: '/favicon.ico',
-          badge: '/favicon.ico'
+          icon: '/logo.png',
+          badge: '/logo.png',
+          tag: 'workout-reminder',
+          requireInteraction: false
         });
       }
       // Reschedule for next day
       scheduleNotification();
     }, timeUntilNotification);
+
+    localStorage.setItem('notification_timer_id', timerId.toString());
+    console.log(`✅ Reminder set for ${notificationTime} (${Math.round(timeUntilNotification / 1000 / 60)} minutes from now)`);
   };
 
   // Creative notes removed
@@ -441,6 +463,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
         >
           <button
             onClick={() => {
+              console.log('🔴 LOGOUT BUTTON CLICKED');
               signOut();
             }}
             className="w-full px-6 py-3 bg-red-500 text-white rounded-2xl hover:bg-red-600 transition-colors flex items-center justify-center gap-2"

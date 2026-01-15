@@ -24,6 +24,7 @@ export const AdminPanel: React.FC = () => {
     const [success, setSuccess] = useState<string | null>(null);
     const [approvedUsers, setApprovedUsers] = useState<ApprovedUser[]>([]);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [checkingAdmin, setCheckingAdmin] = useState(true);
 
     React.useEffect(() => {
         checkAdminStatus();
@@ -31,16 +32,52 @@ export const AdminPanel: React.FC = () => {
     }, [user]);
 
     const checkAdminStatus = async () => {
-        if (!user) return;
+        if (!user || !user.email) {
+            setCheckingAdmin(false);
+            return;
+        }
 
-        const { data } = await supabase
-            .from('profiles')
-            .select('is_admin')
-            .eq('id', user.id)
-            .single();
+        try {
+            console.log('🔍 Checking admin status for:', user.email);
 
-        if (data) {
-            setIsAdmin(data.is_admin || false);
+            // First check if profile exists
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('is_admin, email, id')
+                .eq('id', user.id)
+                .maybeSingle();
+
+            if (error) {
+                console.error('❌ Admin check error:', error);
+                setIsAdmin(false);
+                setCheckingAdmin(false);
+                return;
+            }
+
+            if (!data) {
+                console.log('⚠️ No profile found for user, creating one...');
+                // Profile doesn't exist, create it
+                const { error: insertError } = await supabase
+                    .from('profiles')
+                    .insert({
+                        id: user.id,
+                        email: user.email,
+                        is_admin: false
+                    });
+
+                if (insertError) {
+                    console.error('❌ Failed to create profile:', insertError);
+                }
+                setIsAdmin(false);
+            } else {
+                console.log('✅ Admin status:', data.is_admin, 'for email:', user.email);
+                setIsAdmin(data.is_admin || false);
+            }
+        } catch (err) {
+            console.error('❌ Admin check exception:', err);
+            setIsAdmin(false);
+        } finally {
+            setCheckingAdmin(false);
         }
     };
 
@@ -87,6 +124,20 @@ export const AdminPanel: React.FC = () => {
         }
     };
 
+    if (checkingAdmin) {
+        return (
+            <Card>
+                <CardHeader>
+                    <CardTitle>Admin Panel</CardTitle>
+                    <CardDescription>Checking access...</CardDescription>
+                </CardHeader>
+                <CardContent className="flex justify-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-[#A3C9A8]" />
+                </CardContent>
+            </Card>
+        );
+    }
+
     if (!isAdmin) {
         return (
             <Card>
@@ -94,6 +145,17 @@ export const AdminPanel: React.FC = () => {
                     <CardTitle>Admin Panel</CardTitle>
                     <CardDescription>You don't have admin access</CardDescription>
                 </CardHeader>
+                <CardContent>
+                    <Alert>
+                        <AlertDescription>
+                            Your email: <strong>{user?.email}</strong><br />
+                            If you should have admin access, ask an existing admin to run:<br />
+                            <code className="text-xs bg-gray-100 p-1 rounded mt-2 block">
+                                UPDATE profiles SET is_admin = true WHERE email = '{user?.email}';
+                            </code>
+                        </AlertDescription>
+                    </Alert>
+                </CardContent>
             </Card>
         );
     }

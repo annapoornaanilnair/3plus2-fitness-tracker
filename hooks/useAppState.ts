@@ -95,6 +95,7 @@ export const useAppState = () => {
               setState(profile.app_data);
               localStorage.setItem(STORAGE_KEY, JSON.stringify(profile.app_data));
               localStorage.setItem('last_updated', profile.updated_at);
+              console.log('🔄 App state updated from cloud');
             }
           }
         }
@@ -137,6 +138,7 @@ export const useAppState = () => {
         if (!error) {
           const timestamp = new Date().toISOString();
           localStorage.setItem('last_updated', timestamp);
+          console.log('✅ Saved to cloud');
         }
       } catch (error) {
         console.error('Sync error:', error);
