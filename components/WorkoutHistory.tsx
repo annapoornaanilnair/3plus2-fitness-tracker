@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { WorkoutLog } from '../types';
-import { WEEKLY_PLAN } from '../data/workoutPlan';
+import { WorkoutLog, UserProfile } from '../types';
+import { getWeeklyPlan } from '../data/workoutPlan';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface WorkoutHistoryProps {
     workoutLogs: WorkoutLog[];
+    profile: UserProfile;
     onClose: () => void;
 }
 
-export const WorkoutHistory: React.FC<WorkoutHistoryProps> = ({ workoutLogs, onClose }) => {
+export const WorkoutHistory: React.FC<WorkoutHistoryProps> = ({ workoutLogs, profile, onClose }) => {
     const today = new Date();
     const [currentMonth, setCurrentMonth] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -16,6 +17,9 @@ export const WorkoutHistory: React.FC<WorkoutHistoryProps> = ({ workoutLogs, onC
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const fullDayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const mandatoryDays = ['Monday', 'Wednesday', 'Friday'];
+
+    // Get weekly plan with user's custom weekend activities
+    const weeklyPlan = getWeeklyPlan(profile);
 
     // Generate calendar days for the current month
     const getCalendarDays = () => {
@@ -43,7 +47,6 @@ export const WorkoutHistory: React.FC<WorkoutHistoryProps> = ({ workoutLogs, onC
 
     const calendarDays = getCalendarDays();
     const isCurrentMonth = currentMonth.getMonth() === today.getMonth() && currentMonth.getFullYear() === today.getFullYear();
-    const isPastMonth = currentMonth < new Date(today.getFullYear(), today.getMonth(), 1);
 
     const goToPreviousMonth = () => {
         setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
@@ -57,7 +60,7 @@ export const WorkoutHistory: React.FC<WorkoutHistoryProps> = ({ workoutLogs, onC
 
     const getWorkoutForDate = (date: Date) => {
         const dayName = fullDayNames[date.getDay()];
-        return WEEKLY_PLAN.find(w => w.day === dayName);
+        return weeklyPlan.find(w => w.day === dayName);
     };
 
     const getLogForDate = (date: Date) => {
@@ -149,39 +152,38 @@ export const WorkoutHistory: React.FC<WorkoutHistoryProps> = ({ workoutLogs, onC
                                 const isTodayDate = isToday(date);
                                 const isRest = workout?.type === 'rest';
                                 const beforeToday = isDayBeforeToday(date);
-                                const showNA = (isCurrentMonth && beforeToday) || isPastMonth;
+
+                                // Show workout plan for all dates, highlight completed ones
+                                // No more "NA" - always show the workout that should be done
+                                const isFutureDate = !beforeToday && !isTodayDate && isCurrentMonth;
 
                                 return (
                                     <button
                                         key={index}
-                                        onClick={() => !showNA && setSelectedDate(date)}
-                                        className={`aspect-square rounded-xl p-2 transition-all ${showNA
-                                            ? 'bg-gray-100 cursor-not-allowed'
-                                            : isCompleted
-                                                ? 'bg-[#A3C9A8] text-white hover:bg-[#8FB896]'
-                                                : isTodayDate
-                                                    ? 'bg-[#EDC4B3] text-white hover:bg-[#E0B5A4] ring-2 ring-[#EDC4B3] ring-offset-2'
-                                                    : isRest
-                                                        ? 'bg-[#E8E4DE] hover:bg-[#DDD9D3]'
+                                        onClick={() => setSelectedDate(date)}
+                                        className={`aspect-square rounded-xl p-2 transition-all ${isCompleted
+                                            ? 'bg-[#A3C9A8] text-white hover:bg-[#8FB896]'
+                                            : isTodayDate
+                                                ? 'bg-[#EDC4B3] text-white hover:bg-[#E0B5A4] ring-2 ring-[#EDC4B3] ring-offset-2'
+                                                : isRest
+                                                    ? 'bg-[#E8E4DE] hover:bg-[#DDD9D3]'
+                                                    : isFutureDate
+                                                        ? 'bg-gray-50 hover:bg-gray-100'
                                                         : 'bg-[#F5F1EB] hover:bg-[#E8E4DE]'
                                             }`}
                                     >
                                         <div className="flex flex-col items-center justify-center h-full">
                                             <div
-                                                className={`text-sm font-semibold ${showNA ? 'text-gray-400' : isCompleted || isTodayDate ? 'text-white' : 'text-[#4A4A4A]'
+                                                className={`text-sm font-semibold ${isCompleted || isTodayDate ? 'text-white' :
+                                                    isFutureDate ? 'text-gray-400' : 'text-[#4A4A4A]'
                                                     }`}
                                                 style={{ fontFamily: 'Quicksand, sans-serif' }}
                                             >
                                                 {date.getDate()}
                                             </div>
-                                            {!showNA && (
-                                                <div className="text-xs mt-1">
-                                                    {isCompleted ? '✅' : isRest ? '☁️' : isMandatory ? '💪' : '⭐'}
-                                                </div>
-                                            )}
-                                            {showNA && (
-                                                <div className="text-[10px] text-gray-400 mt-0.5">NA</div>
-                                            )}
+                                            <div className="text-xs mt-1">
+                                                {isCompleted ? '🔥' : isRest ? '☁️' : isMandatory ? '💪' : '⭐'}
+                                            </div>
                                         </div>
                                     </button>
                                 );
@@ -278,9 +280,10 @@ export const WorkoutHistory: React.FC<WorkoutHistoryProps> = ({ workoutLogs, onC
                                 );
                             })()}
                         </div>
-                    )}
-                </div>
-            </div>
-        </div>
+                    )
+                    }
+                </div >
+            </div >
+        </div >
     );
 };

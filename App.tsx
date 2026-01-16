@@ -11,7 +11,9 @@ import { CheckInModal } from './components/CheckInModal';
 import { CelebrationModal } from './components/CelebrationModal';
 import { ShareableWorkoutCard } from './components/ShareableWorkoutCard';
 import { useAppState } from './hooks/useAppState';
+import { useSwipeGesture } from './hooks/useSwipeGesture';
 import { getTodaysCustomWorkout } from './utils/workoutHelpers';
+import { getWeeklyPlan } from './data/workoutPlan';
 import { ExerciseLog, DailyCheckIn } from './types';
 
 type Screen = 'dashboard' | 'workout' | 'profile' | 'customization';
@@ -56,6 +58,29 @@ function AppContent() {
   const [celebrationStreak, setCelebrationStreak] = useState(0);
   const [completedDayName, setCompletedDayName] = useState('');
   const [completedExerciseCount, setCompletedExerciseCount] = useState(0);
+  const [selectedWorkoutDay, setSelectedWorkoutDay] = useState<string | null>(null);
+
+  // Gesture Navigation: Swipe between screens
+  // Dashboard <-> WorkoutHistory (not implemented yet) <-> Profile
+  useSwipeGesture({
+    onSwipeLeft: () => {
+      // Swipe left = go to next screen
+      if (currentScreen === 'dashboard' && !state.currentWorkout) {
+        setCurrentScreen('profile');
+      }
+    },
+    onSwipeRight: () => {
+      // Swipe right = go to previous screen
+      if (currentScreen === 'profile') {
+        setCurrentScreen('dashboard');
+      } else if (currentScreen === 'customization') {
+        setCurrentScreen('profile');
+      }
+    }
+  }, {
+    minSwipeDistance: 80, // Require longer swipe to prevent accidental navigation
+    preventDefaultTouchMove: false // Allow normal scrolling
+  });
 
   // Show loading state while checking authentication
   if (loading) {
@@ -78,10 +103,12 @@ function AppContent() {
     return <OnboardingScreen onComplete={completeOnboarding} />;
   }
 
-  const handleStartWorkout = () => {
-    const todaysWorkout = getTodaysCustomWorkout(state.customExercises);
-    if (!todaysWorkout) return;
+  const handleStartWorkoutForDay = (dayName: string) => {
+    const weeklyPlan = getWeeklyPlan(state.profile);
+    const selectedWorkout = weeklyPlan.find(w => w.day === dayName);
+    if (!selectedWorkout || selectedWorkout.type === 'rest') return;
 
+    setSelectedWorkoutDay(dayName);
     // Show check-in modal first
     setShowCheckIn(true);
   };
@@ -90,17 +117,37 @@ function AppContent() {
     setCheckInData(checkIn);
     setShowCheckIn(false);
 
-    // Start the workout
-    const todaysWorkout = getTodaysCustomWorkout(state.customExercises);
-    if (!todaysWorkout) return;
+    // Get the workout for the selected day (or today if none selected)
+    const workoutDay = selectedWorkoutDay || getTodaysCustomWorkout(state.customExercises)?.day;
+    const weeklyPlan = getWeeklyPlan(state.profile);
+    const selectedWorkout = weeklyPlan.find(w => w.day === workoutDay);
 
-    const initialExercises: ExerciseLog[] = todaysWorkout.exercises.map(ex => ({
+    if (!selectedWorkout) return;
+
+    // Apply custom exercises if any
+    const customExercises = state.customExercises.filter(ex => ex.dayName === selectedWorkout.day);
+    let exercises = [...selectedWorkout.exercises];
+    customExercises.forEach(custom => {
+      const index = exercises.findIndex(ex => ex.id === custom.replacedExerciseId);
+      if (index !== -1) {
+        exercises[index] = {
+          id: custom.id,
+          name: custom.name,
+          videoUrl: custom.videoUrl,
+          sets: custom.sets,
+          reps: custom.reps,
+          restSeconds: custom.restSeconds
+        };
+      }
+    });
+
+    const initialExercises: ExerciseLog[] = exercises.map(ex => ({
       exerciseId: ex.id,
       weight: getLastWeight(ex.id) || 0,
       sets: Array(ex.sets).fill({ completed: false, struggled: false })
     }));
 
-    startWorkout(todaysWorkout.day, initialExercises);
+    startWorkout(selectedWorkout.day, initialExercises);
     setCurrentScreen('workout');
   };
 
@@ -108,22 +155,42 @@ function AppContent() {
     setShowCheckIn(false);
     setCheckInData(undefined);
 
-    // Start the workout without check-in
-    const todaysWorkout = getTodaysCustomWorkout(state.customExercises);
-    if (!todaysWorkout) return;
+    // Get the workout for the selected day (or today if none selected)
+    const workoutDay = selectedWorkoutDay || getTodaysCustomWorkout(state.customExercises)?.day;
+    const weeklyPlan = getWeeklyPlan(state.profile);
+    const selectedWorkout = weeklyPlan.find(w => w.day === workoutDay);
 
-    const initialExercises: ExerciseLog[] = todaysWorkout.exercises.map(ex => ({
+    if (!selectedWorkout) return;
+
+    // Apply custom exercises if any
+    const customExercises = state.customExercises.filter(ex => ex.dayName === selectedWorkout.day);
+    let exercises = [...selectedWorkout.exercises];
+    customExercises.forEach(custom => {
+      const index = exercises.findIndex(ex => ex.id === custom.replacedExerciseId);
+      if (index !== -1) {
+        exercises[index] = {
+          id: custom.id,
+          name: custom.name,
+          videoUrl: custom.videoUrl,
+          sets: custom.sets,
+          reps: custom.reps,
+          restSeconds: custom.restSeconds
+        };
+      }
+    });
+
+    const initialExercises: ExerciseLog[] = exercises.map(ex => ({
       exerciseId: ex.id,
       weight: getLastWeight(ex.id) || 0,
       sets: Array(ex.sets).fill({ completed: false, struggled: false })
     }));
 
-    startWorkout(todaysWorkout.day, initialExercises);
+    startWorkout(selectedWorkout.day, initialExercises);
     setCurrentScreen('workout');
   };
 
-  const handleCompleteWorkout = (exercises: ExerciseLog[]) => {
-    const newStreak = completeWorkout(checkInData);
+  const handleCompleteWorkout = async (exercises: ExerciseLog[]) => {
+    const newStreak = await completeWorkout(checkInData);
     const todaysWorkout = getTodaysCustomWorkout(state.customExercises);
 
     setCheckInData(undefined);
@@ -157,10 +224,11 @@ function AppContent() {
           energyMode={state.energyMode}
           onToggleEnergy={toggleEnergyMode}
           completedDays={completedDays}
-          onStartWorkout={handleStartWorkout}
+          onStartWorkoutForDay={handleStartWorkoutForDay}
           onNavigateToProfile={() => setCurrentScreen('profile')}
           streak={state.profile.streak || 0}
           workoutCompletedToday={hasWorkoutToday()}
+          profile={state.profile}
         />
       )}
 

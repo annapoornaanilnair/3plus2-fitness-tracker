@@ -283,6 +283,71 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
           )}
         </motion.div>
 
+        {/* Weekend Activities */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.125 }}
+          className="bg-white rounded-3xl p-6 shadow-md"
+        >
+          <h2 className="text-xl mb-4 text-[#4A4A4A] font-raleway font-semibold">
+            Weekend Activities 🎨
+          </h2>
+          <p className="text-sm text-[#8A8A8A] mb-4" style={{ fontFamily: 'Nunito, sans-serif' }}>
+            Customize your weekend activities with optional emojis
+          </p>
+
+          {/* Saturday */}
+          <div className="mb-4">
+            <label className="block text-sm text-[#8A8A8A] mb-2" style={{ fontFamily: 'Nunito, sans-serif' }}>
+              Saturday Activity
+            </label>
+            <div className="flex gap-2 mb-2">
+              <input
+                type="text"
+                value={profile.saturdayActivity || ''}
+                onChange={(e) => onUpdateProfile({ saturdayActivity: e.target.value })}
+                placeholder="e.g., Violin, Yoga, Swimming"
+                className="flex-1 px-4 py-3 rounded-2xl bg-[#F5F1EB] text-[#4A4A4A]"
+                style={{ fontFamily: 'Quicksand, sans-serif', fontWeight: 600 }}
+              />
+              <input
+                type="text"
+                value={profile.saturdayEmoji || ''}
+                onChange={(e) => onUpdateProfile({ saturdayEmoji: e.target.value })}
+                placeholder="🎻"
+                className="w-20 px-4 py-3 rounded-2xl bg-[#F5F1EB] text-center text-2xl"
+                maxLength={2}
+              />
+            </div>
+          </div>
+
+          {/* Sunday */}
+          <div>
+            <label className="block text-sm text-[#8A8A8A] mb-2" style={{ fontFamily: 'Nunito, sans-serif' }}>
+              Sunday Activity
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={profile.sundayActivity || ''}
+                onChange={(e) => onUpdateProfile({ sundayActivity: e.target.value })}
+                placeholder="e.g., Meal Prep, Family Time"
+                className="flex-1 px-4 py-3 rounded-2xl bg-[#F5F1EB] text-[#4A4A4A]"
+                style={{ fontFamily: 'Quicksand, sans-serif', fontWeight: 600 }}
+              />
+              <input
+                type="text"
+                value={profile.sundayEmoji || ''}
+                onChange={(e) => onUpdateProfile({ sundayEmoji: e.target.value })}
+                placeholder="☁️"
+                className="w-20 px-4 py-3 rounded-2xl bg-[#F5F1EB] text-center text-2xl"
+                maxLength={2}
+              />
+            </div>
+          </div>
+        </motion.div>
+
         {/* Workout Customization */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -524,6 +589,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
         showWeeklyHistory && (
           <WorkoutHistory
             workoutLogs={workoutLogs}
+            profile={profile}
             onClose={() => setShowWeeklyHistory(false)}
           />
         )

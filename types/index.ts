@@ -33,8 +33,11 @@ export interface ExerciseLog {
 
 export interface WorkoutLog {
   date: string;
-  dayName: string;
-  exercises: ExerciseLog[];
+  dayName?: string;
+  weekNumber?: number;
+  day?: number;
+  duration?: number;
+  exercises: ExerciseLog[] | any[];
   completed: boolean;
   checkIn?: DailyCheckIn;
 }
@@ -54,6 +57,11 @@ export interface UserProfile {
   creativeNotes?: string;
   streak?: number;
   lastWorkoutDate?: string;
+  last_updated?: string; // Timestamp for sync
+  saturdayActivity?: string; // e.g., "Violin", "Yoga", "Swimming"
+  saturdayEmoji?: string; // e.g., "🎻", "🧘", "🏊"
+  sundayActivity?: string; // e.g., "Meal Prep", "Family Time"
+  sundayEmoji?: string; // e.g., "🍳", "👨‍👩‍👧‍👦"
 }
 
 export interface CustomExercise {
@@ -69,14 +77,20 @@ export interface CustomExercise {
   userId?: string;
 }
 
+export interface CurrentWorkout {
+  weekNumber: number;
+  day: number;
+  startTime: string;
+  exercises: any[]; // Will be Exercise[] from workoutPlan
+  currentExerciseIndex: number;
+  completedExercises: any[];
+}
+
 export interface AppState {
   energyMode: EnergyMode;
   workoutLogs: WorkoutLog[];
   profile: UserProfile;
   customExercises: CustomExercise[];
-  currentWorkout?: {
-    dayName: string;
-    exercises: ExerciseLog[];
-    currentExerciseIndex: number;
-  };
+  currentWorkout?: CurrentWorkout;
+  last_updated?: string; // Timestamp for sync
 }

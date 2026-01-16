@@ -2,9 +2,8 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { EnergyToggle } from './EnergyToggle';
 import { WeeklyBubbles } from './WeeklyBubbles';
-import { WorkoutCard } from './WorkoutCard';
-import { EnergyMode } from '../types';
-import { getDayOfWeek, getTodaysWorkout } from '../data/workoutPlan';
+import { EnergyMode, UserProfile } from '../types';
+import { getDayOfWeek, getTodaysWorkout, getWeeklyPlan } from '../data/workoutPlan';
 import { Home, User } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -12,20 +11,22 @@ interface DashboardProps {
   energyMode: EnergyMode;
   onToggleEnergy: () => void;
   completedDays: Set<string>;
-  onStartWorkout: () => void;
+  onStartWorkoutForDay: (dayName: string) => void;
   onNavigateToProfile: () => void;
   streak: number;
   workoutCompletedToday: boolean;
+  profile: UserProfile;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
   energyMode,
   onToggleEnergy,
   completedDays,
-  onStartWorkout,
+  onStartWorkoutForDay,
   onNavigateToProfile,
   streak,
-  workoutCompletedToday
+  workoutCompletedToday,
+  profile
 }) => {
   const { getBackgroundGradient } = useTheme();
   const currentDay = getDayOfWeek();
@@ -90,89 +91,87 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </motion.div>
 
         {/* Weekly Progress */}
-        <WeeklyBubbles completedDays={completedDays} currentDay={currentDay} />
+        <WeeklyBubbles completedDays={completedDays} currentDay={currentDay} profile={profile} />
 
-        {/* Today's Workout */}
-        {todaysWorkout && (
-          <div className="mb-8">
-            {workoutCompletedToday ? (
-              <motion.div
-                initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{
-                  duration: 0.6,
-                  ease: [0.34, 1.56, 0.64, 1] // Bouncy spring
-                }}
-                className="relative overflow-hidden p-8 rounded-3xl shadow-lg bg-gradient-to-br from-[#A3C9A8] via-[#82A885] to-[#6B9374]"
-              >
-                {/* Decorative circles */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
-
-                <div className="relative text-center text-white">
-                  {/* Animated Icon */}
-                  <motion.div
-                    initial={{ scale: 0, rotate: -180 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                    className="text-7xl mb-4"
-                  >
-                    ✅
-                  </motion.div>
-
-                  {/* Title */}
-                  <motion.h2
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="text-4xl mb-3 font-raleway font-bold"
-                  >
-                    Amazing Work!
-                  </motion.h2>
-
-                  {/* Message */}
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.4 }}
-                    className="text-lg mb-6 font-lato text-white/90"
-                  >
-                    You crushed today's workout 💪
-                  </motion.p>
-
-                  {/* Stats Badge */}
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.5 }}
-                    className="inline-flex items-center gap-3 px-6 py-3 bg-white/20 backdrop-blur-sm rounded-full mb-4"
-                  >
-                    <span className="text-2xl">🔥</span>
-                    <span className="text-lg font-raleway font-semibold">
-                      {streak} {streak === 1 ? 'day' : 'days'} streak
-                    </span>
-                  </motion.div>
-
-                  {/* Info */}
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.6 }}
-                    className="text-sm font-lato text-white/75"
-                  >
-                    See you tomorrow for day {streak + 1}!
-                  </motion.div>
-                </div>
-              </motion.div>
-            ) : (
-              <WorkoutCard
-                workout={todaysWorkout}
-                energyMode={energyMode}
-                onStart={onStartWorkout}
-              />
-            )}
-          </div>
+        {/* Today's Workout Status */}
+        {workoutCompletedToday && todaysWorkout && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 p-6 rounded-3xl shadow-md bg-gradient-to-r from-[#A3C9A8] to-[#82A885] text-white"
+          >
+            <div className="flex items-center gap-4">
+              <span className="text-4xl">✅</span>
+              <div>
+                <h3 className="text-xl font-raleway font-bold">Today's workout complete!</h3>
+                <p className="text-white/80 text-sm font-lato">Great job! Pick another day to keep training 💪</p>
+              </div>
+            </div>
+          </motion.div>
         )}
+
+        {/* All Workouts Selector */}
+        <div className="mb-8 space-y-3">
+          <h3 className="text-lg font-raleway font-semibold text-[#4A4A4A] mb-4">
+            {workoutCompletedToday ? 'Choose Another Workout' : 'Select a Workout'}
+          </h3>
+          {getWeeklyPlan(profile).map((workout, index) => {
+            const isCompleted = completedDays.has(workout.day);
+            const isToday = workout.day === currentDay;
+            const isRest = workout.type === 'rest';
+
+            return (
+              <motion.button
+                key={workout.day}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.05 }}
+                onClick={() => !isRest && onStartWorkoutForDay(workout.day)}
+                disabled={isRest}
+                className={`w-full p-4 rounded-2xl shadow-sm flex items-center justify-between transition-all
+                  ${isRest
+                    ? 'bg-gray-100 cursor-not-allowed opacity-60'
+                    : isCompleted
+                      ? 'bg-gradient-to-r from-[#A3C9A8] to-[#C5E0C9] text-white hover:shadow-md active:scale-[0.98]'
+                      : isToday
+                        ? 'bg-white border-2 border-[#A3C9A8] hover:bg-[#F5F3EE] active:scale-[0.98]'
+                        : 'bg-white hover:bg-[#F5F3EE] active:scale-[0.98]'
+                  }
+                `}
+              >
+                <div className="flex items-center gap-4">
+                  <span className="text-3xl">{workout.icon}</span>
+                  <div className="text-left">
+                    <div className="flex items-center gap-2">
+                      <h4 className={`font-raleway font-semibold ${isCompleted || isRest ? 'text-white' : 'text-[#4A4A4A]'
+                        }`}>
+                        {workout.day}
+                      </h4>
+                      {isToday && !isRest && (
+                        <span className="px-2 py-0.5 bg-[#A3C9A8] text-white text-xs rounded-full font-lato">
+                          Today
+                        </span>
+                      )}
+                      {isCompleted && (
+                        <span className="text-white text-lg">✓</span>
+                      )}
+                    </div>
+                    <p className={`text-sm font-lato ${isCompleted || isRest ? 'text-white/80' : 'text-[#8A8A8A]'
+                      }`}>
+                      {workout.focus} {!isRest && `• ${workout.exercises.length} exercises`}
+                    </p>
+                  </div>
+                </div>
+                {!isRest && (
+                  <div className={`font-lato text-sm ${isCompleted ? 'text-white' : 'text-[#A3C9A8]'
+                    }`}>
+                    {isCompleted ? 'Do Again →' : 'Start →'}
+                  </div>
+                )}
+              </motion.button>
+            );
+          })}
+        </div>
 
         {/* Stats Card */}
         <motion.div

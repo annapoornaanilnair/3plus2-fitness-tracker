@@ -1,6 +1,7 @@
-import { WorkoutDay } from '../types';
+import { WorkoutDay, UserProfile } from '../types';
 
-export const WEEKLY_PLAN: WorkoutDay[] = [
+// Base workout plan (Mon-Fri)
+const BASE_WORKOUTS: WorkoutDay[] = [
   {
     day: 'Monday',
     focus: 'Lower Body & Glutes',
@@ -152,54 +153,64 @@ export const WEEKLY_PLAN: WorkoutDay[] = [
     type: 'mandatory',
     exercises: [
       {
-        id: 'step-ups',
-        name: 'Step-Ups (on Bench)',
-        videoUrl: 'https://www.youtube.com/embed/aajhW7DD1EA',
+        id: 'dumbbell-swings',
+        name: 'Dumbbell Swings',
+        videoUrl: 'https://www.youtube.com/embed/YSxHifyI6s8',
+        sets: 3,
+        reps: 15,
+        restSeconds: 60
+      },
+      {
+        id: 'db-bench-press',
+        name: 'DB Bench Press',
+        videoUrl: 'https://www.youtube.com/embed/VmB1G1K7v94',
         sets: 3,
         reps: 12,
         restSeconds: 60
       },
       {
-        id: 'pushups',
-        name: 'Pushups (Knees okay)',
-        videoUrl: 'https://www.youtube.com/embed/IODxDxX7oi4',
+        id: 'sumo-squats',
+        name: 'Sumo Squats',
+        videoUrl: 'https://www.youtube.com/embed/qKgt7VO0MsM',
         sets: 3,
         reps: 12,
         restSeconds: 60
       },
       {
-        id: 'dumbbell-thrusters',
-        name: 'Dumbbell Thrusters (Squat + Press)',
-        videoUrl: 'https://www.youtube.com/embed/L219ltL15zk',
-        sets: 3,
-        reps: 10,
-        restSeconds: 60
-      },
-      {
-        id: 'glute-bridges',
-        name: 'Glute Bridges',
-        videoUrl: 'https://www.youtube.com/embed/OUgsJ8-Vi0E',
+        id: 'bicycle-crunches',
+        name: 'Bicycle Crunches (10 per side)',
+        videoUrl: 'https://www.youtube.com/embed/9FGilxCbdz8',
         sets: 3,
         reps: 20,
         restSeconds: 60
       }
     ]
-  },
-  {
-    day: 'Saturday',
-    focus: 'Violin Class',
-    icon: '🎻',
-    type: 'rest',
-    exercises: []
-  },
-  {
-    day: 'Sunday',
-    focus: 'Rest / Meal Prep',
-    icon: '☁️',
-    type: 'rest',
-    exercises: []
   }
 ];
+
+// Generate weekend activities based on user profile
+export function getWeeklyPlan(profile?: UserProfile): WorkoutDay[] {
+  const saturdayActivity: WorkoutDay = {
+    day: 'Saturday',
+    focus: profile?.saturdayActivity || 'Violin Class',
+    icon: profile?.saturdayEmoji || '🎻',
+    type: 'rest',
+    exercises: []
+  };
+
+  const sundayActivity: WorkoutDay = {
+    day: 'Sunday',
+    focus: profile?.sundayActivity || 'Rest / Meal Prep',
+    icon: profile?.sundayEmoji || '☁️',
+    type: 'rest',
+    exercises: []
+  };
+
+  return [...BASE_WORKOUTS, saturdayActivity, sundayActivity];
+}
+
+// Export backward compatible WEEKLY_PLAN for existing code
+export const WEEKLY_PLAN: WorkoutDay[] = getWeeklyPlan();
 
 // Low energy alternatives - lighter versions of exercises
 export const LOW_ENERGY_MODIFICATIONS: Record<string, { sets?: number; reps?: number; note?: string }> = {

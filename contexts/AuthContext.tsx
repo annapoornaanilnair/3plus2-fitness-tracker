@@ -113,20 +113,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
             console.log('🚪 Logging out...');
 
-            // Don't clear localStorage at all - just sign out from Supabase
-            // The app data stays in localStorage for next login
+            // CRITICAL: Sign out from Supabase FIRST to properly close session
+            // Clearing localStorage before signOut can corrupt session state
             const { error } = await supabase.auth.signOut();
 
             if (error) {
                 console.error('❌ Logout error:', error);
-            } else {
-                console.log('✅ Logged out successfully - all app data preserved in localStorage');
+                throw error; // Propagate error for proper handling
             }
+
+            // Only clear storage AFTER successful signOut
+            console.log('✅ Logged out from Supabase, clearing local cache...');
+            localStorage.clear();
+            sessionStorage.clear();
+
+            console.log('✅ Logout complete - all data cleared');
 
             // The auth state change will trigger automatically via onAuthStateChange
             // No need to force navigation - React will handle it
         } catch (error) {
             console.error('❌ Failed to sign out:', error);
+
+            // On error, still attempt cleanup but log warning
+            console.warn('⚠️ Attempting force cleanup despite error...');
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+            } catch (cleanupError) {
+                console.error('❌ Cleanup also failed:', cleanupError);
+            }
+
+            // Force reload to reset app state
+            window.location.href = '/';
         }
     }
 
