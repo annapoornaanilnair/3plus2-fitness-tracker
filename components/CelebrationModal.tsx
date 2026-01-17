@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import Confetti from 'react-confetti';
 import { Trophy, Flame, Star, Award, Share2 } from 'lucide-react';
+import { getRandomMessage } from '../data/lowEnergyMessages';
 
 interface CelebrationModalProps {
     streak: number;
     dayName?: string;
     exerciseCount?: number;
+    energyMode?: 'high' | 'low';
     onClose: () => void;
     onShare?: () => void;
 }
@@ -15,6 +17,7 @@ export const CelebrationModal: React.FC<CelebrationModalProps> = ({
     streak,
     dayName: _dayName,
     exerciseCount: _exerciseCount,
+    energyMode = 'high',
     onClose,
     onShare
 }) => {
@@ -105,11 +108,25 @@ export const CelebrationModal: React.FC<CelebrationModalProps> = ({
                         </p>
                     </motion.div>
 
+                    {/* Low Energy Finish Message */}
+                    {energyMode === 'low' && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.5 }}
+                            className="bg-gradient-to-r from-[#F5DEB3] to-[#FFE4B5] rounded-2xl p-4 mb-6 border border-[#D4A574]"
+                        >
+                            <p className="text-sm text-center text-[#8B6F47]" style={{ fontFamily: 'Nunito, sans-serif' }}>
+                                {getRandomMessage('finish')}
+                            </p>
+                        </motion.div>
+                    )}
+
                     {/* Message */}
                     <motion.p
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        transition={{ delay: 0.5 }}
+                        transition={{ delay: 0.55 }}
                         className="text-center text-[#8A8A8A] font-lato mb-8"
                     >
                         {streak >= 30 ? "You're absolutely crushing it! 💪" :

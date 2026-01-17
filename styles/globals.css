@@ -9,12 +9,16 @@
   --charcoal: #4A4A4A;
   --sage-light: #C5E0C9;
   --sage-dark: #82A885;
+  --strawberry: #F85E5E;
 }
 
+/* Base styles */
 body {
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Nunito', 'Segoe UI', sans-serif;
   background: var(--cream);
   color: var(--charcoal);
+  letter-spacing: 0.3px;
+  transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 h1,
@@ -23,5 +27,139 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: 'Quicksand', sans-serif;
+  font-family: 'Quicksand', 'Segoe UI', sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--cream);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--sage-light);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sage);
+}
+
+/* Smooth gradient backgrounds */
+.bg-gradient-matcha {
+  background: linear-gradient(135deg, #FDFBF7 0%, #C5E0C9 50%, #F5DDD4 100%);
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+.bg-gradient-strawberry {
+  background: linear-gradient(135deg, #FDFBF7 0%, #F5DDD4 50%, #EDC4B3 100%);
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Soft UI card styles */
+.card-soft {
+  @apply rounded-squircle bg-white shadow-soft transition-all duration-300 hover:shadow-soft-lg;
+}
+
+.card-soft-lg {
+  @apply rounded-squircle-lg bg-white shadow-soft-lg transition-all duration-300 hover:shadow-soft-xl;
+}
+
+/* Enhanced input styles */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="time"],
+input[type="date"],
+textarea,
+select {
+  @apply bg-white/80 border-2 border-sage/20 rounded-squircle-sm;
+  @apply text-charcoal placeholder-charcoal/40;
+  @apply transition-all duration-300;
+  @apply shadow-inner-soft;
+}
+
+input[type="text"]:hover,
+input[type="email"]:hover,
+input[type="password"]:hover,
+input[type="number"]:hover,
+input[type="time"]:hover,
+input[type="date"]:hover,
+textarea:hover,
+select:hover {
+  @apply border-sage/40 bg-white shadow-soft;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+input[type="time"]:focus,
+input[type="date"]:focus,
+textarea:focus,
+select:focus {
+  @apply border-sage bg-white/95 shadow-soft-md;
+  @apply outline-none ring-2 ring-offset-2 ring-sage/30;
+}
+
+/* Button styles with soft UI */
+.btn-soft {
+  @apply px-6 py-3 rounded-full font-medium transition-all duration-300 cursor-pointer;
+  @apply shadow-soft hover:shadow-soft-lg active:scale-95;
+}
+
+.btn-soft-primary {
+  @apply btn-soft bg-sage text-white hover:bg-sage-dark;
+}
+
+.btn-soft-secondary {
+  @apply btn-soft bg-dusty-pink text-white hover:bg-dusty-pink-dark;
+}
+
+.btn-soft-ghost {
+  @apply btn-soft bg-transparent border border-sage text-sage hover:bg-sage hover:text-white;
+}
+
+/* Focus states */
+button:focus-visible {
+  @apply outline-none ring-2 ring-offset-2 ring-sage;
+}
+
+input:focus-visible,
+textarea:focus-visible {
+  @apply outline-none ring-2 ring-offset-2 ring-sage;
+}
+
+
+/* Smooth transitions for all interactive elements */
+a,
+button,
+input,
+select,
+textarea {
+  @apply transition-all duration-300 ease-out;
 }

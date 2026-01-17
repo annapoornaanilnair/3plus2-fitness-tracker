@@ -55,57 +55,68 @@ export const AuthScreen: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FDFBF7] via-[#F5F1EB] to-[#FFE8E0] p-4 relative overflow-hidden">
-            {/* Animated background elements */}
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FFF5F7] via-[#FFE8E0] to-[#F5DDD4] p-4 relative overflow-hidden">
+            {/* Animated background elements - Cute floating emojis */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                {/* 🍓 Strawberry */}
                 <motion.div
                     animate={{
-                        y: [0, -20, 0],
-                        rotate: [0, 5, 0],
+                        y: [0, -30, 0],
+                        x: [0, 15, 0],
+                        rotate: [0, 360],
                     }}
                     transition={{
-                        duration: 6,
+                        duration: 8,
                         repeat: Infinity,
                         ease: "easeInOut"
                     }}
-                    className="absolute top-20 left-20 text-4xl opacity-20"
+                    className="absolute top-20 left-20 text-5xl opacity-40"
                 >
-                    ✨
+                    🍓
                 </motion.div>
+
+                {/* 🍵 Matcha Tea */}
                 <motion.div
                     animate={{
-                        y: [0, 15, 0],
-                        rotate: [0, -5, 0],
+                        y: [0, 25, 0],
+                        x: [0, -20, 0],
+                        rotate: [0, -360],
                     }}
                     transition={{
-                        duration: 5,
+                        duration: 9,
                         repeat: Infinity,
                         ease: "easeInOut",
                         delay: 1
                     }}
-                    className="absolute top-40 right-32 text-3xl opacity-20"
+                    className="absolute top-40 right-32 text-5xl opacity-40"
                 >
-                    💪
+                    🍵
                 </motion.div>
+
+                {/* 💪 Strength */}
                 <motion.div
                     animate={{
-                        y: [0, -15, 0],
-                        rotate: [0, 10, 0],
+                        y: [0, -20, 0],
+                        x: [0, 25, 0],
+                        rotate: [0, 360],
                     }}
                     transition={{
-                        duration: 7,
+                        duration: 7.5,
                         repeat: Infinity,
                         ease: "easeInOut",
                         delay: 2
                     }}
-                    className="absolute bottom-32 left-40 text-4xl opacity-20"
+                    className="absolute bottom-32 left-40 text-5xl opacity-35"
                 >
-                    🌸
+                    💪
                 </motion.div>
+
+                {/* ✨ Sparkle */}
                 <motion.div
                     animate={{
-                        y: [0, 20, 0],
-                        rotate: [0, -10, 0],
+                        y: [0, 28, 0],
+                        x: [0, -15, 0],
+                        scale: [1, 1.2, 1],
                     }}
                     transition={{
                         duration: 6.5,
@@ -113,39 +124,115 @@ export const AuthScreen: React.FC = () => {
                         ease: "easeInOut",
                         delay: 0.5
                     }}
-                    className="absolute bottom-20 right-20 text-3xl opacity-20"
+                    className="absolute bottom-20 right-20 text-5xl opacity-40"
                 >
-                    ⭐
+                    ✨
                 </motion.div>
+
+                {/* 🌸 Flower */}
                 <motion.div
                     animate={{
-                        y: [0, -10, 0],
-                        rotate: [0, 5, 0],
+                        y: [0, -25, 0],
+                        x: [0, 20, 0],
+                        rotate: [0, -360],
                     }}
                     transition={{
-                        duration: 5.5,
+                        duration: 8.5,
                         repeat: Infinity,
                         ease: "easeInOut",
                         delay: 1.5
                     }}
-                    className="absolute top-1/2 left-16 text-3xl opacity-15"
+                    className="absolute top-1/2 left-16 text-5xl opacity-35"
                 >
-                    🎯
+                    🌸
                 </motion.div>
+
+                {/* 🎯 Target */}
                 <motion.div
                     animate={{
-                        y: [0, 12, 0],
-                        rotate: [0, -8, 0],
+                        y: [0, 22, 0],
+                        x: [0, -25, 0],
+                        scale: [1, 0.9, 1],
                     }}
                     transition={{
-                        duration: 6.8,
+                        duration: 7,
                         repeat: Infinity,
                         ease: "easeInOut",
                         delay: 2.5
                     }}
-                    className="absolute top-1/3 right-24 text-4xl opacity-15"
+                    className="absolute top-1/3 right-24 text-5xl opacity-30"
+                >
+                    🎯
+                </motion.div>
+
+                {/* 💫 Glow */}
+                <motion.div
+                    animate={{
+                        y: [0, -18, 0],
+                        x: [0, 18, 0],
+                    }}
+                    transition={{
+                        duration: 9.5,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: 0.8
+                    }}
+                    className="absolute bottom-1/3 right-16 text-4xl opacity-35"
                 >
                     💫
+                </motion.div>
+
+                {/* 🍒 Cherry */}
+                <motion.div
+                    animate={{
+                        y: [0, 26, 0],
+                        x: [0, -18, 0],
+                        rotate: [0, 360],
+                    }}
+                    transition={{
+                        duration: 8,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: 3
+                    }}
+                    className="absolute top-2/3 left-1/4 text-4xl opacity-30"
+                >
+                    🍒
+                </motion.div>
+
+                {/* 🌷 Tulip */}
+                <motion.div
+                    animate={{
+                        y: [0, -22, 0],
+                        x: [0, 22, 0],
+                    }}
+                    transition={{
+                        duration: 7.8,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: 1.2
+                    }}
+                    className="absolute bottom-2/3 right-1/3 text-4xl opacity-28"
+                >
+                    🌷
+                </motion.div>
+
+                {/* 🔥 Fire/Energy */}
+                <motion.div
+                    animate={{
+                        y: [0, 20, 0],
+                        x: [0, -20, 0],
+                        scale: [1, 1.1, 1],
+                    }}
+                    transition={{
+                        duration: 6.2,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: 2.2
+                    }}
+                    className="absolute top-1/4 right-1/4 text-4xl opacity-35"
+                >
+                    🔥
                 </motion.div>
             </div>
 

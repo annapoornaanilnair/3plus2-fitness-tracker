@@ -58,20 +58,16 @@ export const useAppState = () => {
    */
   useEffect(() => {
     if (!user) {
-      console.log('[useAppState] No user - resetting to default state');
       setState(DEFAULT_STATE);
       setIsOnboarded(false);
       return;
     }
 
     const loadState = async () => {
-      console.log('[useAppState] Loading state for user:', user.email);
-
       // Try loading from cloud first
       const cloudResult = await SyncService.fetch(user.id);
 
       if (cloudResult.success && cloudResult.data) {
-        console.log('[useAppState] Loaded from cloud');
         setState(cloudResult.data);
 
         // Cache to localStorage
@@ -83,18 +79,15 @@ export const useAppState = () => {
       }
 
       // Fallback to localStorage
-      console.log('[useAppState] Cloud load failed, trying localStorage');
       const localResult = StorageService.read<AppState>('app_data', user.id);
 
       if (localResult.success && localResult.data) {
-        console.log('[useAppState] Loaded from localStorage');
         setState(localResult.data);
         setIsOnboarded(true);
         return;
       }
 
       // First time user
-      console.log('[useAppState] New user - using default state');
       setState(DEFAULT_STATE);
       setIsOnboarded(false);
     };
@@ -118,12 +111,10 @@ export const useAppState = () => {
     SyncService.subscribe(
       user.id,
       (remoteState) => {
-        console.log('[useAppState] Received remote update via real-time');
         setState(remoteState);
         StorageService.write('app_data', remoteState, user.id);
       },
       (status) => {
-        console.log('[useAppState] Sync status changed:', status);
         setSyncState(status);
       }
     );
@@ -160,7 +151,6 @@ export const useAppState = () => {
 
     // Debounce cloud sync (2 seconds)
     syncTimerRef.current = setTimeout(async () => {
-      console.log('[useAppState] Syncing to cloud (debounced)...');
       const result = await SyncService.push(user.id, state);
 
       if (result.success) {
@@ -188,10 +178,7 @@ export const useAppState = () => {
       return;
     }
 
-    console.log('[useAppState] Active workout detected, enabling continuous sync');
-
     const syncWorkoutProgress = async () => {
-      console.log('[useAppState] Backup workout sync...');
       await SyncService.push(user.id, state);
 
       // Schedule next sync in 30 seconds
@@ -212,8 +199,6 @@ export const useAppState = () => {
    * Complete onboarding (backward compatible - no params needed)
    */
   const completeOnboarding = useCallback((profile?: UserProfile) => {
-    console.log('[useAppState] Completing onboarding');
-
     const profileToUse = profile || state.profile;
 
     setState(prev => ({
@@ -234,16 +219,36 @@ export const useAppState = () => {
   const updateProfile = useCallback((updates: Partial<UserProfile>) => {
     console.log('[useAppState] Updating profile:', updates);
 
-    setState(prev => ({
-      ...prev,
-      profile: {
-        ...prev.profile,
-        ...updates,
+    setState(prev => {
+      const newState = {
+        ...prev,
+        profile: {
+          ...prev.profile,
+          ...updates,
+          last_updated: new Date().toISOString()
+        },
         last_updated: new Date().toISOString()
-      },
-      last_updated: new Date().toISOString()
-    }));
-  }, []);
+      };
+
+      // Immediately sync profile changes to Supabase (not debounced)
+      if (user) {
+        console.log('[useAppState] Force-syncing profile update to cloud');
+        StorageService.write('app_data', newState, user.id);
+        
+        // Immediate cloud push for profile updates (critical data)
+        SyncService.push(user.id, newState).then(result => {
+          if (result.success) {
+            StorageService.write('last_updated', newState.last_updated, user.id);
+            console.log('[useAppState] Profile sync successful');
+          } else {
+            console.error('[useAppState] Profile sync failed:', result.error);
+          }
+        });
+      }
+
+      return newState;
+    });
+  }, [user]);
 
   /**
    * Start workout - backward compatible with old API (dayName, exercises)
@@ -345,8 +350,7 @@ export const useAppState = () => {
 
     const updatedLogs = WorkoutService.addWorkoutLog(state.workoutLogs || [], workoutLog);
 
-    // TODO: Call Edge Function for server-side streak validation
-    // For now, keep client-side calculation but mark for migration
+    // Calculate streak client-side
     const newStreak = calculateStreakClientSide(state.profile, workoutLog.date);
 
     setState(prev => ({
@@ -573,8 +577,7 @@ export const useAppState = () => {
 };
 
 /**
- * Temporary client-side streak calculation
- * TODO: Replace with Edge Function call
+ * Client-side streak calculation
  */
 function calculateStreakClientSide(profile: UserProfile, newWorkoutDate: string): number {
   const today = new Date();

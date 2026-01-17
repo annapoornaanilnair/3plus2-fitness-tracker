@@ -28,51 +28,53 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     // Get dynamic background gradient based on mode
     const getBackgroundGradient = (energy: number = 5): string => {
         if (mode === 'light') {
-            return 'from-[#FDFBF7] to-[#F5F1EB]';
+            // Strawberry matcha theme: warm pink base
+            return 'from-[#FFF5F7] via-[#FFE8E0] to-[#F5DDD4]';
         }
 
         if (mode === 'dark') {
-            return 'from-gray-900 to-gray-800';
+            // Dark cozy: charcoal with warm undertones
+            return 'from-[#2A2A2A] via-[#3A2A2A] to-[#3A3A3A]';
         }
 
         if (mode === 'time') {
             const hour = new Date().getHours();
 
-            // Morning (5am-11am): Fresh sunrise
+            // Morning (5am-11am): Warm pink sunrise
             if (hour >= 5 && hour < 11) {
-                return 'from-orange-100 via-pink-50 to-[#FDFBF7]';
+                return 'from-[#FFF0F5] via-[#FFE8E0] to-[#FFF4E6]';
             }
 
-            // Afternoon (11am-5pm): Bright daylight
+            // Afternoon (11am-5pm): Fresh strawberry pink
             if (hour >= 11 && hour < 17) {
-                return 'from-blue-50 via-cyan-50 to-[#F5F1EB]';
+                return 'from-[#FFF5F7] via-[#FFE0E6] to-[#F5DDD4]';
             }
 
-            // Evening (5pm-9pm): Sunset
+            // Evening (5pm-9pm): Sunset towards deeper strawberry
             if (hour >= 17 && hour < 21) {
-                return 'from-purple-100 via-orange-100 to-[#FFF5F0]';
+                return 'from-[#FFF4E6] via-[#F5DDD4] to-[#EDC4B3]';
             }
 
-            // Night (9pm-5am): Calm darkness
-            return 'from-indigo-100 via-purple-50 to-[#FDFBF7]';
+            // Night (9pm-5am): Deep cozy vibes
+            return 'from-[#2A2A2A] via-[#3A2A2A] to-[#3A3A3A]';
         }
 
         if (mode === 'energy') {
-            // High energy (7-10): Vibrant gradients
+            // High energy (7-10): Vibrant strawberry with brightness
             if (energy >= 7) {
-                return 'from-green-100 via-teal-100 to-emerald-50';
+                return 'from-[#FFF5F7] via-[#FFD6E0] to-[#EDC4B3]';
             }
 
-            // Medium energy (4-6): Balanced
+            // Medium energy (4-6): Balanced pink blend
             if (energy >= 4) {
-                return 'from-[#A3C9A8]/20 via-[#EDC4B3]/20 to-[#FDFBF7]';
+                return 'from-[#FFF5F7] via-[#FFE8E0] to-[#F5DDD4]';
             }
 
-            // Low energy (1-3): Soft pastels
-            return 'from-rose-50 via-pink-50 to-[#FFF5F0]';
+            // Low energy (1-3): Soft calming pastels - pure comfort
+            return 'from-[#FFF5F7] via-[#F5DDD4] to-[#D4956A]';
         }
 
-        return 'from-[#FDFBF7] to-[#F5F1EB]';
+        return 'from-[#FFF5F7] via-[#FFE8E0] to-[#F5DDD4]';
     };
 
     return (

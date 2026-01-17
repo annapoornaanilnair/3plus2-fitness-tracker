@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { WorkoutDay, Exercise, CustomExercise } from '../types';
+import { WorkoutDay, Exercise, CustomExercise, UserProfile } from '../types';
 import { WEEKLY_PLAN } from '../data/workoutPlan';
 import { validateYouTubeUrl } from '../utils/youtube';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
@@ -27,19 +27,23 @@ import {
 } from './ui/alert-dialog';
 import { ArrowLeft, Youtube, CheckCircle, AlertCircle, Trash2, Sparkles, Dumbbell } from 'lucide-react';
 
-type Step = 'select-day' | 'select-exercise' | 'enter-details' | 'confirm';
+type Step = 'select-day' | 'select-exercise' | 'enter-details' | 'confirm' | 'weekend-activities';
 
 interface Props {
     customExercises: CustomExercise[];
+    profile: UserProfile;
     onSaveCustomExercise: (customExercise: CustomExercise) => void;
     onDeleteCustomExercise: (dayName: string, replacedExerciseId: string) => void;
+    onUpdateProfile: (updates: Partial<UserProfile>) => void;
     onBack: () => void;
 }
 
 export const WorkoutCustomization: React.FC<Props> = ({
     customExercises,
+    profile: _profile,
     onSaveCustomExercise,
     onDeleteCustomExercise,
+    onUpdateProfile: _onUpdateProfile,
     onBack,
 }) => {
     const [step, setStep] = useState<Step>('select-day');
@@ -58,7 +62,12 @@ export const WorkoutCustomization: React.FC<Props> = ({
 
     const handleDaySelect = (day: WorkoutDay) => {
         setSelectedDay(day);
-        setStep('select-exercise');
+        // If selecting a weekend day, go to weekend activities instead of exercise selection
+        if (day.day === 'Saturday' || day.day === 'Sunday') {
+            setStep('weekend-activities');
+        } else {
+            setStep('select-exercise');
+        }
         setError(null);
     };
 
@@ -588,6 +597,132 @@ export const WorkoutCustomization: React.FC<Props> = ({
                                         >
                                             <Sparkles className="h-5 w-5 mr-2" />
                                             Review & Confirm
+                                        </Button>
+                                    </motion.div>
+                                </CardContent>
+                            </Card>
+                        </motion.div>
+                    )}
+
+                    {/* Weekend Activities Customization */}
+                    {step === 'weekend-activities' && selectedDay && (
+                        <motion.div
+                            key="weekend-activities"
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 20 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-2 border-white/50">
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2 text-2xl">
+                                        <Sparkles className="h-6 w-6 text-[#A3C9A8]" />
+                                        Customize {selectedDay.day}
+                                    </CardTitle>
+                                    <CardDescription className="text-base">Choose your activity and emoji</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    {/* Activity Name Input */}
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.1 }}
+                                    >
+                                        <Label htmlFor="activity-name" className="text-sm font-semibold">Activity Name</Label>
+                                        <Input
+                                            id="activity-name"
+                                            type="text"
+                                            value={selectedDay.day === 'Saturday' ? (_profile.saturdayActivity || '') : (_profile.sundayActivity || '')}
+                                            onChange={(e) => {
+                                                const key = selectedDay.day === 'Saturday' ? 'saturdayActivity' : 'sundayActivity';
+                                                _onUpdateProfile({ [key]: e.target.value });
+                                            }}
+                                            placeholder="e.g., Yoga, Hiking, Rest"
+                                            className="mt-2 bg-[#F5F1EB] border-0 rounded-xl text-[#4A4A4A] placeholder-[#A3A3A3]"
+                                        />
+                                    </motion.div>
+
+                                    {/* Emoji Picker */}
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.2 }}
+                                    >
+                                        <Label className="text-sm font-semibold">Choose Emoji</Label>
+                                        <div className="grid grid-cols-5 gap-2 mt-3">
+                                            {['🎻', '🏃', '🧘', '🧗', '🚴', '🏊', '💃', '🎬', '📚', '🍕', '🎮', '🛴', '🏋️', '⛷️', '🏄', '🎯', '🎨', '🎭', '🚶', '☁️'].map((emoji) => (
+                                                <motion.button
+                                                    key={emoji}
+                                                    whileHover={{ scale: 1.1 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                    onClick={() => {
+                                                        const key = selectedDay.day === 'Saturday' ? 'saturdayEmoji' : 'sundayEmoji';
+                                                        _onUpdateProfile({ [key]: emoji });
+                                                    }}
+                                                    className={`text-3xl p-3 rounded-xl transition-all ${
+                                                        (selectedDay.day === 'Saturday' ? _profile.saturdayEmoji : _profile.sundayEmoji) === emoji
+                                                            ? 'bg-[#A3C9A8] ring-2 ring-[#82A885] scale-110'
+                                                            : 'bg-[#F5F1EB] hover:bg-[#E8E4DE]'
+                                                    }`}
+                                                >
+                                                    {emoji}
+                                                </motion.button>
+                                            ))}
+                                        </div>
+                                        <div className="mt-3 flex items-center justify-between">
+                                            <p className="text-xs text-[#8A8A8A]">
+                                                Selected: {selectedDay.day === 'Saturday' ? _profile.saturdayEmoji || 'None' : _profile.sundayEmoji || 'None'}
+                                            </p>
+                                            <Input
+                                                type="text"
+                                                value={selectedDay.day === 'Saturday' ? (_profile.saturdayEmoji || '') : (_profile.sundayEmoji || '')}
+                                                onChange={(e) => {
+                                                    const key = selectedDay.day === 'Saturday' ? 'saturdayEmoji' : 'sundayEmoji';
+                                                    _onUpdateProfile({ [key]: e.target.value });
+                                                }}
+                                                maxLength={2}
+                                                placeholder="Or paste emoji"
+                                                className="w-24 bg-[#F5F1EB] border-0 rounded-lg text-center text-xl py-1"
+                                            />
+                                        </div>
+                                    </motion.div>
+
+                                    {/* Preview */}
+                                    {(selectedDay.day === 'Saturday' ? _profile.saturdayActivity : _profile.sundayActivity) && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className="bg-gradient-to-br from-[#F5F1EB] to-[#E8E4DE] rounded-2xl p-4 text-center"
+                                        >
+                                            <p className="text-sm text-[#8A8A8A] mb-2">Preview:</p>
+                                            <div className="flex items-center justify-center gap-2">
+                                                <span className="text-3xl">{selectedDay.day === 'Saturday' ? _profile.saturdayEmoji : _profile.sundayEmoji}</span>
+                                                <span className="text-lg font-semibold text-[#4A4A4A]">
+                                                    {selectedDay.day === 'Saturday' ? _profile.saturdayActivity : _profile.sundayActivity}
+                                                </span>
+                                            </div>
+                                        </motion.div>
+                                    )}
+
+                                    {/* Action Buttons */}
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                        className="flex gap-3 pt-4"
+                                    >
+                                        <Button
+                                            variant="outline"
+                                            onClick={() => setStep('select-day')}
+                                            className="flex-1 border-[#E8E4DE] text-[#8A8A8A] hover:bg-[#F5F1EB]"
+                                        >
+                                            Back
+                                        </Button>
+                                        <Button
+                                            onClick={() => setStep('select-day')}
+                                            className="flex-1 bg-[#A3C9A8] hover:bg-[#92B896] text-white"
+                                        >
+                                            Done
                                         </Button>
                                     </motion.div>
                                 </CardContent>

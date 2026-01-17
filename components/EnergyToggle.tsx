@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { EnergyMode } from '../types';
 
@@ -8,26 +8,37 @@ interface EnergyToggleProps {
 }
 
 export const EnergyToggle: React.FC<EnergyToggleProps> = ({ mode, onToggle }) => {
+  const [showNotification, setShowNotification] = useState(false);
+
+  const handleToggle = () => {
+    onToggle();
+    setShowNotification(true);
+    setTimeout(() => setShowNotification(false), 2000);
+  };
+
   return (
-    <div className="flex items-center gap-3">
-      <AnimatePresence mode="wait">
-        <motion.span
-          key={mode}
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 10 }}
-          transition={{ duration: 0.2 }}
-          className="text-sm text-[#6A6A6A] font-medium"
-          style={{ fontFamily: 'Nunito, sans-serif' }}
-        >
-          {mode === 'high' ? 'High Energy' : 'Low Energy'}
-        </motion.span>
+    <div className="flex items-center gap-3 relative">
+      {/* Cute notification toast */}
+      <AnimatePresence>
+        {showNotification && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, y: -20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: -20 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+            className="absolute -top-16 right-0 bg-gradient-to-r from-white/80 via-white/85 to-white/80 backdrop-blur-md border border-sage/20 rounded-full px-4 py-2 shadow-soft-lg whitespace-nowrap"
+          >
+            <span className="text-sm font-nunito font-medium text-charcoal">
+              {mode === 'high' ? '🌸 High Energy' : '🌙 Low Energy'}
+            </span>
+          </motion.div>
+        )}
       </AnimatePresence>
 
       <motion.button
         whileTap={{ scale: 0.92 }}
         whileHover={{ scale: 1.05 }}
-        onClick={onToggle}
+        onClick={handleToggle}
         className={`relative w-20 h-10 rounded-full transition-all duration-300 shadow-md ${mode === 'high'
             ? 'bg-gradient-to-r from-[#A3C9A8] to-[#8BB58F]'
             : 'bg-gradient-to-r from-[#EDC4B3] to-[#D4A59A]'

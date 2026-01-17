@@ -4,6 +4,7 @@ import { Home, User, ChevronLeft, Settings, Shield, Calendar, Sun, Moon } from '
 import { UserProfile, WorkoutLog } from '../types';
 import { AdminPanel } from './AdminPanel';
 import { WorkoutHistory } from './WorkoutHistory';
+import { FloatingEmojiBackground } from './FloatingEmojiBackground';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -146,20 +147,23 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
     ((profile.startWeight - profile.currentWeight) / (profile.startWeight - profile.goalWeight)) * 100;
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] pb-20 lg:pb-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#FFF5F7] via-[#FFE8E0] to-[#F5DDD4] pb-24 lg:pb-8 relative overflow-hidden">
+      {/* Floating emoji background */}
+      <FloatingEmojiBackground />
+
       {/* Header */}
-      <div className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
+      <div className="bg-white/60 backdrop-blur-xl border-b border-sage/10 shadow-soft sticky top-0 z-20 relative">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <button
             onClick={onNavigateToHome}
-            className="lg:hidden p-2 hover:bg-[#F5F1EB] rounded-full transition-colors"
+            className="lg:hidden p-2 hover:bg-sage/10 rounded-full transition-all duration-300"
           >
-            <ChevronLeft size={24} className="text-[#8A8A8A]" />
+            <ChevronLeft size={24} className="text-charcoal/60" />
           </button>
           <motion.h1
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="text-3xl font-raleway font-bold"
+            className="text-3xl font-quicksand font-bold text-charcoal"
           >
             My Profile
           </motion.h1>
@@ -168,36 +172,36 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
       </div>
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-6 py-8 space-y-6">
+      <div className="max-w-4xl mx-auto px-6 py-8 space-y-6 relative z-10">
         {/* Goal Progress */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-3xl p-6 shadow-md cursor-pointer hover:shadow-lg transition-shadow"
+          className="bg-white/90 backdrop-blur-sm rounded-squircle-lg p-6 shadow-soft-md cursor-pointer hover:shadow-soft-lg transition-all duration-300 border border-sage/10"
           onClick={() => setIsWeightExpanded(!isWeightExpanded)}
         >
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl text-[#4A4A4A] font-raleway font-semibold">
+            <h2 className="text-xl text-charcoal font-quicksand font-bold">
               Weight Goal 🎯
             </h2>
             <motion.div
               animate={{ rotate: isWeightExpanded ? 180 : 0 }}
               transition={{ duration: 0.3 }}
-              className="text-[#8A8A8A]"
+              className="text-charcoal/50"
             >
               ▼
             </motion.div>
           </div>
 
           {/* Motivational Quote */}
-          <div className="mb-4 p-3 bg-gradient-to-r from-[#A3C9A8]/10 to-[#EDC4B3]/10 rounded-2xl">
-            <p className="text-sm text-center text-[#4A4A4A] italic font-lato">
+          <div className="mb-4 p-3 bg-gradient-to-r from-sage/10 to-dusty-pink/10 rounded-squircle-sm">
+            <p className="text-sm text-center text-charcoal/70 italic font-nunito">
               {motivationalQuote}
             </p>
           </div>
 
           <div className="mb-6">
-            <div className="flex justify-between text-sm text-[#8A8A8A] mb-2 font-lato">
+            <div className="flex justify-between text-sm text-charcoal/60 mb-2 font-nunito">
               <span>Start: {profile.startWeight}kg</span>
               <span>Goal: {profile.goalWeight}kg</span>
             </div>
@@ -281,71 +285,6 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
               </div>
             </motion.div>
           )}
-        </motion.div>
-
-        {/* Weekend Activities */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.125 }}
-          className="bg-white rounded-3xl p-6 shadow-md"
-        >
-          <h2 className="text-xl mb-4 text-[#4A4A4A] font-raleway font-semibold">
-            Weekend Activities 🎨
-          </h2>
-          <p className="text-sm text-[#8A8A8A] mb-4" style={{ fontFamily: 'Nunito, sans-serif' }}>
-            Customize your weekend activities with optional emojis
-          </p>
-
-          {/* Saturday */}
-          <div className="mb-4">
-            <label className="block text-sm text-[#8A8A8A] mb-2" style={{ fontFamily: 'Nunito, sans-serif' }}>
-              Saturday Activity
-            </label>
-            <div className="flex gap-2 mb-2">
-              <input
-                type="text"
-                value={profile.saturdayActivity || ''}
-                onChange={(e) => onUpdateProfile({ saturdayActivity: e.target.value })}
-                placeholder="e.g., Violin, Yoga, Swimming"
-                className="flex-1 px-4 py-3 rounded-2xl bg-[#F5F1EB] text-[#4A4A4A]"
-                style={{ fontFamily: 'Quicksand, sans-serif', fontWeight: 600 }}
-              />
-              <input
-                type="text"
-                value={profile.saturdayEmoji || ''}
-                onChange={(e) => onUpdateProfile({ saturdayEmoji: e.target.value })}
-                placeholder="🎻"
-                className="w-20 px-4 py-3 rounded-2xl bg-[#F5F1EB] text-center text-2xl"
-                maxLength={2}
-              />
-            </div>
-          </div>
-
-          {/* Sunday */}
-          <div>
-            <label className="block text-sm text-[#8A8A8A] mb-2" style={{ fontFamily: 'Nunito, sans-serif' }}>
-              Sunday Activity
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={profile.sundayActivity || ''}
-                onChange={(e) => onUpdateProfile({ sundayActivity: e.target.value })}
-                placeholder="e.g., Meal Prep, Family Time"
-                className="flex-1 px-4 py-3 rounded-2xl bg-[#F5F1EB] text-[#4A4A4A]"
-                style={{ fontFamily: 'Quicksand, sans-serif', fontWeight: 600 }}
-              />
-              <input
-                type="text"
-                value={profile.sundayEmoji || ''}
-                onChange={(e) => onUpdateProfile({ sundayEmoji: e.target.value })}
-                placeholder="☁️"
-                className="w-20 px-4 py-3 rounded-2xl bg-[#F5F1EB] text-center text-2xl"
-                maxLength={2}
-              />
-            </div>
-          </div>
         </motion.div>
 
         {/* Workout Customization */}
@@ -528,7 +467,6 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
         >
           <button
             onClick={() => {
-              console.log('🔴 LOGOUT BUTTON CLICKED');
               signOut();
             }}
             className="w-full px-6 py-3 bg-red-500 text-white rounded-2xl hover:bg-red-600 transition-colors flex items-center justify-center gap-2"
@@ -543,21 +481,27 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
       </div >
 
       {/* Bottom Navigation */}
-      < div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#E8E4DE] lg:hidden" >
-        <div className="flex">
+      <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-white/40 via-white/50 to-white/40 backdrop-blur-2xl rounded-t-3xl shadow-soft-lg lg:hidden z-50" style={{
+        borderTop: '2px solid transparent',
+        backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.4), rgba(255,255,255,0.5), rgba(255,255,255,0.4)), linear-gradient(to right, rgba(163,201,168,0.3), rgba(237,196,179,0.3), rgba(163,201,168,0.3))',
+        backgroundOrigin: 'border-box',
+        backgroundClip: 'content-box, border-box'
+      }}>
+        <div className="flex items-center justify-center gap-2 px-3 py-1">
           <button
             onClick={onNavigateToHome}
-            className="flex-1 py-4 flex flex-col items-center gap-1 text-[#8A8A8A]"
+            className="flex-1 py-3 px-6 flex flex-col items-center gap-2 text-charcoal/50 hover:text-sage hover:bg-sage/15 rounded-full transition-all duration-300 active:scale-90"
           >
             <Home size={24} />
-            <span className="text-xs" style={{ fontFamily: 'Nunito, sans-serif' }}>Home</span>
+            <span className="text-xs font-nunito font-medium">Home</span>
           </button>
-          <button className="flex-1 py-4 flex flex-col items-center gap-1 text-[#A3C9A8]">
-            <User size={24} />
-            <span className="text-xs" style={{ fontFamily: 'Nunito, sans-serif' }}>Me</span>
+          <div className="h-8 w-px bg-gradient-to-b from-transparent via-charcoal/10 to-transparent"></div>
+          <button className="flex-1 py-3 px-6 flex flex-col items-center gap-2 text-sage hover:bg-sage/15 rounded-full transition-all duration-300 active:scale-90">
+            <User size={24} className="font-bold" />
+            <span className="text-xs font-nunito font-medium">Me</span>
           </button>
         </div>
-      </div >
+      </div>
 
       {/* Admin Panel Modal */}
       {
