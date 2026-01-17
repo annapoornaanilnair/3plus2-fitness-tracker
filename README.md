@@ -13,6 +13,8 @@ A modern, progressive web app (PWA) for tracking your fitness journey with a per
 - **Progressive Web App** - Works offline, installable on mobile and desktop
 - **Dark/Light Theme** - Beautiful UI with theme preferences
 - **Notification Reminders** - Daily workout reminders at your preferred time
+- **Background Sync** - Automatic background synchronization with service workers
+- **Gesture Support** - Swipe gestures for improved mobile navigation
 
 ## Quick Start 🚀
 
@@ -70,9 +72,17 @@ npm run preview
 │   ├── Dashboard.tsx
 │   ├── WorkoutPlayer.tsx
 │   ├── ProfilePage.tsx
-│   └── ...
+│   ├── WeeklyBubbles.tsx
+│   ├── WorkoutHistory.tsx
+│   └── ui/            # Shadcn UI component library
 ├── contexts/          # React context (Auth, Theme)
-├── hooks/             # Custom hooks (useAppState)
+├── hooks/             # Custom hooks (useAppState, useSwipeGesture)
+├── services/          # Business logic services
+│   ├── WorkoutService.ts
+│   ├── StorageService.ts
+│   ├── SyncService.ts
+│   ├── BackgroundSyncService.ts
+│   └── index.ts
 ├── utils/             # Utility functions
 │   └── supabase/      # Supabase client & configuration
 ├── styles/            # Tailwind CSS
@@ -110,12 +120,20 @@ npm run preview
 - Works offline with localStorage
 - Seamless multi-device support
 - Real-time updates
+- Background synchronization with service workers
 
 ### PWA Capabilities
 - Install as mobile app
 - Offline functionality
 - Home screen icon
 - Works on iOS and Android
+- Service worker for background tasks
+
+### Architecture
+- **Separation of Concerns**: Business logic separated into dedicated services
+- **Responsive Design**: Mobile-first approach with Tailwind CSS
+- **Type Safety**: Full TypeScript support throughout the application
+- **State Management**: React Context combined with localStorage for persistence
 
 ## Contributing 🤝
 
